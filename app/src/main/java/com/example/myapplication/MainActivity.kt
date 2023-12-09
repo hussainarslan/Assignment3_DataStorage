@@ -96,7 +96,7 @@ class MainActivity : ComponentActivity() {
                 val contactId = it.getString(it.getColumnIndex(ContactsContract.Contacts._ID))
                 val phoneNumber = getPhoneNumber(contentResolver, contactId)
 
-                contacts.add(Contact(displayName, phoneNumber))
+                contacts.add(Contact(-1,displayName, phoneNumber))
             }
         }
 
@@ -128,6 +128,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ContactList() {
         val context = LocalContext.current
+        var databaseHelper by remember { mutableStateOf(DatabaseHelper(context = context)) }
+
         var allContacts by remember { mutableStateOf(emptyList<Contact>()) }
         var isImported by remember { mutableStateOf(false) }
 
@@ -151,6 +153,11 @@ class MainActivity : ComponentActivity() {
                         requestContactsPermissionAndImport { contacts ->
                             allContacts = contacts
                             isImported = true
+
+                            // Insert contacts into the SQLite database
+                            for (contact in contacts) {
+                                databaseHelper.insertContact(contact)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -174,7 +181,9 @@ class MainActivity : ComponentActivity() {
                         startCall(context, contact.phoneNumber)
                     },
                     onDeleteClicked = { contact ->
-                        allContacts = allContacts.filterNot { it == contact }
+                        // Delete contact from the SQLite database and update the UI
+                        databaseHelper.deleteContact(contact)
+                        allContacts = databaseHelper.getAllContacts()
                     }
                 )
             }
@@ -313,9 +322,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-
-
-    data class Contact(val displayName: String, val phoneNumber: String)
 
 }
 
