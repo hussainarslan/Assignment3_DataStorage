@@ -13,5 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Assignment3_DataStorage"
+rootProject.name = "My Application"
 include(":app")
+ 

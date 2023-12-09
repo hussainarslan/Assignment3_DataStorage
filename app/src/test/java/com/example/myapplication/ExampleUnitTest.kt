@@ -1,4 +1,4 @@
-package com.example.assignment3_datastorage
+package com.example.myapplication
 
 import org.junit.Test
 
